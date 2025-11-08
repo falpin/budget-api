@@ -1,5 +1,9 @@
 package main
 
+import (
+	"github.com/pinghoyk/budget-api/internal/storage"
+)
+
 func main() {
 
 }
