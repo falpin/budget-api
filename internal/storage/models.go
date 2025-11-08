@@ -1,5 +1,6 @@
 // описание структур базы данных
-package models
+package storage
+
 import "time"
 
 type User struct {
