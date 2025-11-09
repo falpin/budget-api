@@ -1,6 +1,11 @@
 package main
 
 import (
+	"log"
+	"os"
+	"path/filepath"
+
+	"github.com/joho/godotenv"
 	"github.com/pinghoyk/budget-api/internal/storage"
 )
 
@@ -25,6 +30,10 @@ func main() {
 		log.Fatalf("Не удалось инициализировать БД: %v", err)
 	}
 	defer db.Close()
+
+	log.Printf("База данных создана :%s", dbPath)
+	log.Println("Запустили сервер")
+
 }
 
 // пока все пишу тут, потом надо разделить файлы и кинут в internal
