@@ -55,6 +55,43 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(users)
 	})
+
+	// post
+	http.HandleFunc("/add_user", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "только POST", http.StatusMethodNotAllowed)
+			return
+		}
+
+		var input struct {
+			Email    string `json:"email"`
+			Password string `json:"password"`
+			Name     string `json:"name"`
+		}
+
+		if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+			http.Error(w, "невалидный JSON", http.StatusBadRequest)
+			return
+		}
+
+		if input.Email == "" || input.Password == "" || input.Name == "" {
+			http.Error(w, "email, password, name обязательны", http.StatusBadRequest)
+			return
+		}
+
+		err := store.AddUser(input.Email, input.Password, input.Name)
+		if err != nil {
+			log.Printf("Не добавил юзера: %v", err)
+			http.Error(w, "не удалось создать юзера", http.StatusBadRequest)
+			return
+		}
+
+		w.WriteHeader(http.StatusCreated)
+		w.Write([]byte(`{"status":"ok"}`))
+		})
+
+		log.Println("Сервер слушает :8080")
+		log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
 // пока все пишу тут, потом надо разделить файлы и кинут в internal
