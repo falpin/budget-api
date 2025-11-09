@@ -19,6 +19,12 @@ func main() {
 	if err := os.MkdirAll(dataDir, 0755); err != nil {
 		log.Fatalf("Не удалось создать директорию %s: %v", dataDir, err)
 	}
+
+	db, err := storage.NewDB(dbPath)
+	if err != nil {
+		log.Fatalf("Не удалось инициализировать БД: %v", err)
+	}
+	defer db.Close()
 }
 
 // пока все пишу тут, потом надо разделить файлы и кинут в internal
