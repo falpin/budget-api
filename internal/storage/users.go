@@ -47,3 +47,9 @@ func (s *Storage) AddUser(email, password, name string) error {
 		`, email, password, name, time.Now(), time.Now())
 		return err
 }
+
+func (s *Storage) DeleteUser(id int64) error {
+	_, err := s.db.Exec(`
+		DELETE FROM users WHERE id = ?`, id)
+		return err
+}
