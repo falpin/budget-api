@@ -39,3 +39,11 @@ func (s *Storage) GetUserByID(id int64) (*User, error) {
 	}
 	return &u, nil
 }
+
+func (s *Storage) AddUser(email, password, name string) error {
+	_, err := s.db.Exec(`
+		INSERT INTO users (email, password, name, created_at, updated_at)
+		VALUES (?, ?, ?, ?, ?)
+		`, email, password, name, time.Now(), time.Now())
+		return err
+}
