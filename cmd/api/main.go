@@ -21,8 +21,8 @@ func main() {
 
 	dbPath := os.Getenv("DB_PATH")
 	if dbPath == "" {
-		dbPath = "../budget-data/budget.db"
-		log.Printf("DB_PATH не задан - используем значение по умолчанию: %s", dbPath)
+		dbPath = "data/budget.db"
+		log.Printf("DB_PATH не задан — используем значение по умолчанию: %s", dbPath)
 	}
 
 	dataDir := filepath.Dir(dbPath)
@@ -36,18 +36,29 @@ func main() {
 	}
 	defer db.Close()
 
-	log.Printf("База данных создана :%s", dbPath)
-	log.Println("Запустили сервер")
+	log.Printf("База данных инициализирована: %s", dbPath)
 
 	store := storage.New(db)
 
-	// get
-	http.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet {
-			http.Error(w, "только GET", http.StatusMethodNotAllowed)
-			return
-		}
+	r := chi.NewRouter()
 
+	// Middleware
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+
+	// Routes
+	r.Get("/users", getUsersHandler(store))
+	r.Post("/add_user", addUserHandler(store))
+
+	// Запуск сервера
+	log.Println("Сервер слушает :8080")
+	log.Fatal(http.ListenAndServe(":8080", r))
+}
+
+// === HANDLERS ===
+
+func getUsersHandler(store *storage.Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		users, err := store.GetAllUsers()
 		if err != nil {
 			log.Printf("Ошибка получения юзеров: %v", err)
@@ -56,16 +67,16 @@ func main() {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(users)
-	})
-
-	// post
-	http.HandleFunc("/add_user", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			http.Error(w, "только POST", http.StatusMethodNotAllowed)
+		if err := json.NewEncoder(w).Encode(users); err != nil {
+			log.Printf("Ошибка сериализации JSON: %v", err)
+			http.Error(w, "ошибка при кодировании", http.StatusInternalServerError)
 			return
 		}
+	}
+}
 
+func addUserHandler(store *storage.Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		var input struct {
 			Email    string `json:"email"`
 			Password string `json:"password"`
@@ -76,6 +87,7 @@ func main() {
 			http.Error(w, "невалидный JSON", http.StatusBadRequest)
 			return
 		}
+		defer r.Body.Close()
 
 		if input.Email == "" || input.Password == "" || input.Name == "" {
 			http.Error(w, "email, password, name обязательны", http.StatusBadRequest)
@@ -84,17 +96,13 @@ func main() {
 
 		err := store.AddUser(input.Email, input.Password, input.Name)
 		if err != nil {
-			log.Printf("Не добавил юзера: %v", err)
+			log.Printf("Не удалось добавить юзера: %v", err)
 			http.Error(w, "не удалось создать юзера", http.StatusBadRequest)
 			return
 		}
 
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
-		w.Write([]byte(`{"status":"ok"}`))
-		})
-
-		log.Println("Сервер слушает :8080")
-		log.Fatal(http.ListenAndServe(":8080", nil))
+		json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+	}
 }
-
-// пока все пишу тут, потом надо разделить файлы и кинут в internal
