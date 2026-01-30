@@ -14,4 +14,14 @@ type User struct {
 	CreatedAt    time.Time `db:"created_at"    json:"created_at"`
 	UpdatedAt    time.Time `db:"updated_at"    json:"updated_at"`
 }
+
+type Account struct {
+	ID        int64           `db:"id"         json:"id"`
+	UserID    int64           `db:"user_id"    json:"user_id"`
+	Name      string          `db:"name"       json:"name"`
+	Balance   decimal.Decimal `db:"balance"    json:"balance"`
+	Currency  string          `db:"currency"   json:"currency"`
+	CreatedAt time.Time       `db:"created_at" json:"created_at"`
+	UpdatedAt time.Time       `db:"updated_at" json:"updated_at"`
+}
 }
