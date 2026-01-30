@@ -34,4 +34,15 @@ type Category struct {
 	CreatedAt time.Time `db:"created_at"  json:"created_at"`
 	UpdatedAt time.Time `db:"updated_at"  json:"updated_at"`
 }
+
+type Transfer struct {
+	ID            int64           `db:"id" json:"id"`
+	UserID        int64           `db:"user_id" json:"user_id"`
+	FromAccountID int64           `db:"from_account_id" json:"from_account_id"`
+	ToAccountID   int64           `db:"to_account_id" json:"to_account_id"`
+	Amount        decimal.Decimal `db:"amount" json:"amount"`
+	Currency      string          `db:"currency" json:"currency"`
+	Description   *string         `db:"description" json:"description,omitempty"`
+	CreatedAt     time.Time       `db:"created_at" json:"created_at"`
+}
 }

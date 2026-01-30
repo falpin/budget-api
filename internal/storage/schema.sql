@@ -34,4 +34,20 @@ CREATE TABLE IF NOT EXISTS categories (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+-- Таблица переводов
+CREATE TABLE IF NOT EXISTS transfers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    from_account_id INTEGER NOT NULL,
+    to_account_id INTEGER NOT NULL,
+    amount TEXT NOT NULL CHECK(amount > 0),
+    currency TEXT NOT NULL DEFAULT 'RUB' CHECK(length(currency) = 3),
+    description TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (from_account_id) REFERENCES accounts(id) ON DELETE RESTRICT,
+    FOREIGN KEY (to_account_id) REFERENCES accounts(id) ON DELETE RESTRICT,
+    CHECK (from_account_id != to_account_id)
+);
 );
