@@ -69,4 +69,24 @@ CREATE TABLE IF NOT EXISTS transactions (
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL,
     FOREIGN KEY (transfer_id) REFERENCES transfers(id) ON DELETE CASCADE
 );
+
+-- Таблица долгов
+CREATE TABLE IF NOT EXISTS debts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    contact_name TEXT NOT NULL,
+    amount TEXT NOT NULL CHECK(amount >= 0),
+    currency TEXT NOT NULL DEFAULT 'RUB' CHECK(length(currency) = 3),
+    debt_type TEXT NOT NULL CHECK(debt_type IN ('owed_to_me', 'i_owe')),
+    transaction_id INTEGER,
+    repayment_transaction_id INTEGER,
+    description TEXT,
+    issued_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    repaid_at DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE SET NULL,
+    FOREIGN KEY (repayment_transaction_id) REFERENCES transactions(id) ON DELETE SET NULL,
+    CHECK (repaid_at IS NULL OR repaid_at >= issued_at)
 );

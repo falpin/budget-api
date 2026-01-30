@@ -59,4 +59,19 @@ type Transaction struct {
 	CreatedAt       time.Time       `db:"created_at" json:"created_at"`
 	UpdatedAt       time.Time       `db:"updated_at" json:"updated_at"`
 }
+
+type Debt struct {
+	ID                     int64           `db:"id"                     json:"id"`
+	UserID                 int64           `db:"user_id"                json:"user_id"`
+	ContactName            string          `db:"contact_name"           json:"contact_name"`
+	Amount                 decimal.Decimal `db:"amount"                 json:"amount"`
+	Currency               string          `db:"currency"               json:"currency"`
+	DebtType               string          `db:"debt_type"              json:"debt_type"`
+	TransactionID          *int64          `db:"transaction_id"         json:"transaction_id,omitempty"`
+	RepaymentTransactionID *int64          `db:"repayment_transaction_id" json:"repayment_transaction_id,omitempty"`
+	Description            *string         `db:"description"            json:"description,omitempty"`
+	IssuedAt               time.Time       `db:"issued_at"              json:"issued_at"`
+	RepaidAt               *time.Time      `db:"repaid_at"             json:"repaid_at,omitempty"`
+	CreatedAt              time.Time       `db:"created_at"             json:"created_at"`
+	UpdatedAt              time.Time       `db:"updated_at"             json:"updated_at"`
 }
